@@ -1,0 +1,2556 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <title>Stakeback — Spend like you already do. Own what you buy.</title>
+  <meta name="description" content="Stakeback is building a simpler way to turn everyday spending into investing — connecting the brands you spend with to investment opportunities, automatically." />
+
+  <!-- Open Graph -->
+  <meta property="og:title" content="Stakeback — Own what you buy." />
+  <meta property="og:description" content="Turn everyday spending into investing. Join the early access list." />
+  <meta property="og:type" content="website" />
+
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet" />
+
+  <!--
+    ── Google Analytics 4 ───────────────────────────────────────────
+    SETUP:
+    1. Go to analytics.google.com → Admin → Create Property → Web
+    2. Copy your Measurement ID (looks like G-XXXXXXXXXX)
+    3. Replace REPLACE_WITH_GA4_ID below in BOTH places
+  -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=REPLACE_WITH_GA4_ID"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){ dataLayer.push(arguments); }
+    gtag('js', new Date());
+    gtag('config', 'REPLACE_WITH_GA4_ID', {
+      send_page_view: false   // we fire page_view manually so we can attach UTM params
+    });
+  </script>
+
+  <style>
+    /* ─── Design tokens ─────────────────────────────────────────── */
+    :root {
+      --bg:            #0A0A0A;
+      --surface:       #111111;
+      --surface-2:     #181818;
+      --border:        #222222;
+      --border-light:  #2e2e2e;
+      --accent:        #A3E635;
+      --accent-dim:    rgba(163,230,53,0.12);
+      --accent-glow:   rgba(163,230,53,0.25);
+      --text-primary:  #F5F5F0;
+      --text-secondary:#A8A8A0;
+      --text-muted:    #555550;
+      --red:           #FF5757;
+      --radius-sm:     8px;
+      --radius:        14px;
+      --radius-lg:     22px;
+      --radius-xl:     32px;
+      --font:          'Inter', system-ui, -apple-system, sans-serif;
+      --transition:    0.22s cubic-bezier(0.4,0,0.2,1);
+    }
+
+    /* ─── Reset ──────────────────────────────────────────────────── */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html {
+      scroll-behavior: smooth;
+      scroll-snap-type: y proximity;
+    }
+    body {
+      background: var(--bg);
+      color: var(--text-primary);
+      font-family: var(--font);
+      font-size: 16px;
+      line-height: 1.6;
+      overflow-x: hidden;
+      -webkit-font-smoothing: antialiased;
+    }
+    /* Every top-level section snaps to viewport */
+    section, footer {
+      scroll-snap-align: start;
+      scroll-margin-top: 0;
+    }
+    /* Sections fill at least the full viewport height */
+    section {
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+    }
+    footer {
+      min-height: auto;
+      scroll-snap-align: end;
+    }
+    a { color: inherit; text-decoration: none; }
+    button { cursor: pointer; font-family: var(--font); border: none; background: none; }
+    ul { list-style: none; }
+
+    /* ─── Utility ────────────────────────────────────────────────── */
+    .container {
+      max-width: 1120px;
+      margin: 0 auto;
+      padding: 0 24px;
+    }
+    .accent { color: var(--accent); }
+    .muted  { color: var(--text-secondary); }
+    .tag {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--accent);
+      background: var(--accent-dim);
+      border: 1px solid rgba(163,230,53,0.2);
+      padding: 5px 12px;
+      border-radius: 100px;
+    }
+    .tag::before {
+      content: '';
+      width: 6px; height: 6px;
+      border-radius: 50%;
+      background: var(--accent);
+      display: inline-block;
+    }
+
+    /* ─── Noise overlay (subtle texture) ──────────────────────────── */
+    body::after {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='1'/%3E%3C/svg%3E");
+      opacity: 0.025;
+      pointer-events: none;
+      z-index: 9999;
+    }
+
+    /* ─── NAVBAR ─────────────────────────────────────────────────── */
+    .nav {
+      position: fixed;
+      top: 0; left: 0; right: 0;
+      z-index: 100;
+      padding: 18px 0;
+      background: transparent;
+      backdrop-filter: blur(0px);
+      -webkit-backdrop-filter: blur(0px);
+      border-bottom: 1px solid transparent;
+      transition:
+        background 0.35s ease,
+        backdrop-filter 0.35s ease,
+        -webkit-backdrop-filter 0.35s ease,
+        border-color 0.35s ease;
+    }
+    .nav.scrolled {
+      background: rgba(10,10,10,0.75);
+      backdrop-filter: blur(24px) saturate(180%);
+      -webkit-backdrop-filter: blur(24px) saturate(180%);
+      border-bottom: 1px solid var(--border);
+    }
+    .nav__inner {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .nav__logo {
+      font-size: 20px;
+      font-weight: 800;
+      letter-spacing: -0.03em;
+      color: var(--text-primary);
+    }
+    .nav__logo span { color: var(--accent); }
+    .nav__cta {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      background: var(--accent);
+      color: #000;
+      font-size: 13px;
+      font-weight: 700;
+      line-height: 1;
+      padding: 10px 20px;
+      border-radius: 100px;
+      vertical-align: middle;
+      transition: transform var(--transition), box-shadow var(--transition);
+    }
+    .nav__cta:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 8px 24px var(--accent-glow);
+    }
+
+    /* ─── HERO ───────────────────────────────────────────────────── */
+    .hero {
+      padding: 80px 0 40px;
+      position: relative;
+      overflow: hidden;
+    }
+    .hero__glow {
+      position: absolute;
+      top: -200px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 800px;
+      height: 800px;
+      background: radial-gradient(ellipse at center, rgba(163,230,53,0.07) 0%, transparent 70%);
+      pointer-events: none;
+    }
+    .hero__content {
+      position: relative;
+      z-index: 1;
+      text-align: center;
+      max-width: 800px;
+      margin: 0 auto;
+    }
+    .hero__eyebrow {
+      margin-bottom: 24px;
+    }
+    .hero__heading {
+      font-size: clamp(40px, 7vw, 80px);
+      font-weight: 900;
+      letter-spacing: -0.04em;
+      line-height: 1.04;
+      margin-bottom: 24px;
+    }
+    .hero__heading em {
+      font-style: normal;
+      color: var(--accent);
+    }
+    .hero__sub {
+      font-size: clamp(16px, 2vw, 19px);
+      color: var(--text-secondary);
+      line-height: 1.65;
+      max-width: 520px;
+      margin: 0 auto 40px;
+    }
+    .hero__cta-group {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 14px;
+    }
+    .btn-primary {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: var(--accent);
+      color: #000;
+      font-size: 15px;
+      font-weight: 700;
+      padding: 16px 32px;
+      border-radius: 100px;
+      transition: transform var(--transition), box-shadow var(--transition);
+    }
+    .btn-primary:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 12px 40px var(--accent-glow);
+    }
+    .btn-primary svg { width: 16px; height: 16px; }
+    .hero__microcopy {
+      font-size: 13px;
+      color: var(--text-muted);
+    }
+
+    /* ─── BRAND LOGOS STRIP ─────────────────────────────────────── */
+    .brands {
+      padding: 40px 0 0;
+      width: 100%;
+    }
+    .brands__label {
+      text-align: center;
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--text-muted);
+      margin-bottom: 24px;
+    }
+    .brands__scroll {
+      display: flex;
+      overflow: hidden;
+      mask-image: linear-gradient(to right, transparent 0%, black 10%, black 90%, transparent 100%);
+    }
+    .brands__track {
+      display: flex;
+      gap: 12px;
+      padding-right: 12px; /* matches gap so seam is seamless */
+      animation: scroll-brands 20s linear infinite;
+      flex-shrink: 0;
+      will-change: transform;
+    }
+    .brands__track:nth-child(2) {
+      animation-delay: -10s;
+    }
+    @keyframes scroll-brands {
+      from { transform: translateX(0); }
+      to   { transform: translateX(-100%); }
+    }
+    .brand-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 100px;
+      padding: 8px 16px;
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--text-secondary);
+      white-space: nowrap;
+      flex-shrink: 0;
+    }
+    .brand-pill .dot {
+      width: 8px; height: 8px;
+      border-radius: 50%;
+      flex-shrink: 0;
+    }
+
+    /* ─── PRODUCT VISUAL ─────────────────────────────────────────── */
+    .product-visual {
+      padding: 0 0 100px;
+    }
+    .flow-card {
+      max-width: 440px;
+      margin: 0 auto;
+      background: var(--surface);
+      border: 1px solid var(--border-light);
+      border-radius: var(--radius-xl);
+      padding: 40px 32px;
+      position: relative;
+      overflow: hidden;
+    }
+    .flow-card::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      height: 1px;
+      background: linear-gradient(90deg, transparent, var(--accent-glow), transparent);
+    }
+    .flow-step {
+      display: flex;
+      align-items: flex-start;
+      gap: 16px;
+    }
+    .flow-step__icon {
+      width: 40px; height: 40px;
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 18px;
+      flex-shrink: 0;
+      background: var(--surface-2);
+      border: 1px solid var(--border);
+    }
+    .flow-step__label {
+      font-size: 12px;
+      font-weight: 600;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      color: var(--text-muted);
+      margin-bottom: 4px;
+    }
+    .flow-step__value {
+      font-size: 22px;
+      font-weight: 800;
+      letter-spacing: -0.02em;
+      color: var(--text-primary);
+      line-height: 1.2;
+    }
+    .flow-step__sub {
+      font-size: 13px;
+      color: var(--text-secondary);
+      margin-top: 2px;
+    }
+    .flow-connector {
+      display: flex;
+      flex-direction: column;
+      align-items: flex-start;
+      padding: 10px 0 10px 19px;
+      gap: 3px;
+    }
+    .flow-connector__dot {
+      width: 4px; height: 4px;
+      border-radius: 50%;
+      background: var(--border-light);
+    }
+    .flow-connector__dot.accent { background: var(--accent); }
+    .flow-step--result .flow-step__value {
+      color: var(--accent);
+    }
+    .flow-disclaimer {
+      margin-top: 24px;
+      padding-top: 20px;
+      border-top: 1px solid var(--border);
+      font-size: 11px;
+      color: var(--text-muted);
+      line-height: 1.5;
+    }
+
+    /* Animation for the flow */
+    .flow-step { opacity: 0; transform: translateY(8px); }
+    .flow-card.animate .flow-step:nth-child(1) { animation: fadeup 0.4s ease forwards 0.1s; }
+    .flow-card.animate .flow-connector:nth-child(2) { animation: fadeup 0.3s ease forwards 0.4s; }
+    .flow-card.animate .flow-step:nth-child(3) { animation: fadeup 0.4s ease forwards 0.5s; }
+    .flow-card.animate .flow-connector:nth-child(4) { animation: fadeup 0.3s ease forwards 0.8s; }
+    .flow-card.animate .flow-step:nth-child(5) { animation: fadeup 0.4s ease forwards 0.9s; }
+    .flow-connector { opacity: 0; transform: translateY(4px); }
+    @keyframes fadeup {
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* ─── SECTION HEADINGS ──────────────────────────────────────── */
+    .section {
+      padding: 80px 0;
+    }
+    .section__header {
+      margin-bottom: 64px;
+    }
+    .section__header--center {
+      text-align: center;
+      max-width: 640px;
+      margin: 0 auto 64px;
+    }
+    .section__tag {
+      margin-bottom: 20px;
+    }
+    .section__title {
+      font-size: clamp(28px, 4vw, 48px);
+      font-weight: 800;
+      letter-spacing: -0.03em;
+      line-height: 1.15;
+      margin-bottom: 16px;
+    }
+    .section__desc {
+      font-size: 17px;
+      color: var(--text-secondary);
+      line-height: 1.7;
+    }
+
+    /* ─── PROBLEM SECTION ────────────────────────────────────────── */
+    .problem {
+      background: var(--surface);
+      border-top: 1px solid var(--border);
+      border-bottom: 1px solid var(--border);
+    }
+    .problem__grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 60px;
+      align-items: start;
+    }
+    .spending-list {
+      background: var(--bg);
+      border: 1px solid var(--border-light);
+      border-radius: var(--radius-lg);
+      overflow: hidden;
+    }
+    .spending-list__header {
+      padding: 16px 20px;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .spending-list__title {
+      font-size: 12px;
+      font-weight: 700;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      color: var(--text-muted);
+    }
+    .spending-list__dot {
+      width: 8px; height: 8px;
+      border-radius: 50%;
+      background: var(--red);
+    }
+    .spending-item {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 14px 20px;
+      border-bottom: 1px solid var(--border);
+      transition: background var(--transition);
+    }
+    .spending-item:last-child { border-bottom: none; }
+    .spending-item:hover { background: var(--surface); }
+    .spending-item__left {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    .spending-item__emoji {
+      width: 32px; height: 32px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 16px;
+      background: var(--surface);
+      border-radius: 8px;
+    }
+    .spending-item__name {
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--text-primary);
+    }
+    .spending-item__cat {
+      font-size: 11px;
+      color: var(--text-muted);
+    }
+    .spending-item__amount {
+      font-size: 15px;
+      font-weight: 700;
+      color: var(--text-secondary);
+      font-variant-numeric: tabular-nums;
+    }
+    .problem__arrow {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 12px;
+      padding: 20px 0;
+    }
+    .problem__arrow-line {
+      width: 1px;
+      height: 32px;
+      background: linear-gradient(to bottom, var(--border-light), var(--accent));
+    }
+    .problem__arrow-text {
+      font-size: 13px;
+      font-weight: 700;
+      color: var(--text-muted);
+      letter-spacing: 0.04em;
+    }
+    .problem__question {
+      text-align: center;
+      padding: 20px;
+      font-size: 15px;
+      color: var(--text-muted);
+      font-style: italic;
+    }
+    .problem__insight {
+      background: var(--accent-dim);
+      border: 1px solid rgba(163,230,53,0.2);
+      border-radius: var(--radius);
+      padding: 20px 24px;
+      margin-top: 16px;
+    }
+    .problem__insight p {
+      font-size: 15px;
+      font-weight: 600;
+      color: var(--accent);
+      line-height: 1.5;
+    }
+
+    /* ─── IDEA SECTION ───────────────────────────────────────────── */
+    .idea-quote {
+      max-width: 720px;
+      margin: 0 auto;
+      text-align: center;
+    }
+    .idea-quote__before,
+    .idea-quote__after {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 20px 24px;
+      font-size: 16px;
+      color: var(--text-secondary);
+    }
+    .idea-quote__label {
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--text-muted);
+      margin-bottom: 8px;
+    }
+    .idea-quote__text {
+      font-size: 17px;
+      color: var(--text-secondary);
+    }
+    .idea-quote__vs {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      padding: 16px 0;
+      justify-content: center;
+    }
+    .idea-quote__vs-line {
+      flex: 1;
+      height: 1px;
+      background: var(--border);
+    }
+    .idea-quote__vs span {
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--text-muted);
+    }
+    .idea-quote__after {
+      border-color: rgba(163,230,53,0.3);
+      background: var(--accent-dim);
+    }
+    .idea-quote__after .idea-quote__text {
+      color: var(--accent);
+      font-weight: 700;
+      font-size: 20px;
+    }
+
+    /* ─── HOW IT WORKS ───────────────────────────────────────────── */
+    .how {
+      background: var(--surface);
+      border-top: 1px solid var(--border);
+      border-bottom: 1px solid var(--border);
+    }
+    .how__steps {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 2px;
+      background: var(--border);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      overflow: hidden;
+    }
+    .how__step {
+      background: var(--surface);
+      padding: 40px 32px;
+      position: relative;
+      transition: background var(--transition);
+    }
+    .how__step:hover { background: var(--surface-2); }
+    .how__step-num {
+      font-size: 11px;
+      font-weight: 800;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--accent);
+      margin-bottom: 24px;
+    }
+    .how__step-icon {
+      font-size: 32px;
+      margin-bottom: 20px;
+      display: block;
+    }
+    .how__step-title {
+      font-size: 18px;
+      font-weight: 800;
+      letter-spacing: -0.02em;
+      color: var(--text-primary);
+      margin-bottom: 12px;
+    }
+    .how__step-desc {
+      font-size: 14px;
+      color: var(--text-secondary);
+      line-height: 1.65;
+    }
+    .how__step-example {
+      margin-top: 20px;
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      padding: 12px 16px;
+      font-size: 12px;
+      font-family: 'SF Mono', 'Fira Code', monospace;
+      color: var(--text-muted);
+      line-height: 1.8;
+    }
+    .how__step-example .hi { color: var(--accent); }
+    .how__disclaimer {
+      margin-top: 24px;
+      font-size: 12px;
+      color: var(--text-muted);
+      text-align: center;
+      line-height: 1.6;
+    }
+
+    /* ─── YOUR RULE ──────────────────────────────────────────────── */
+    .rules__grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 16px;
+    }
+    .rule-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 28px 28px;
+      transition: border-color var(--transition), transform var(--transition);
+      cursor: default;
+    }
+    .rule-card:hover {
+      border-color: var(--accent);
+      transform: translateY(-2px);
+    }
+    .rule-card__type {
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--text-muted);
+      margin-bottom: 10px;
+    }
+    .rule-card__rule {
+      font-size: 18px;
+      font-weight: 800;
+      letter-spacing: -0.02em;
+      color: var(--text-primary);
+      margin-bottom: 12px;
+      line-height: 1.3;
+    }
+    .rule-card__rule em {
+      font-style: normal;
+      color: var(--accent);
+    }
+    .rule-card__desc {
+      font-size: 13px;
+      color: var(--text-secondary);
+      line-height: 1.6;
+    }
+
+    /* ─── PORTFOLIO VISUAL ──────────────────────────────────────── */
+    .portfolio__card {
+      max-width: 480px;
+      margin: 0 auto;
+      background: var(--surface);
+      border: 1px solid var(--border-light);
+      border-radius: var(--radius-xl);
+      overflow: hidden;
+    }
+    .portfolio__header {
+      padding: 28px 28px 24px;
+      border-bottom: 1px solid var(--border);
+    }
+    .portfolio__title {
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--text-muted);
+      margin-bottom: 4px;
+    }
+    .portfolio__period {
+      font-size: 13px;
+      color: var(--text-secondary);
+    }
+    .portfolio__stats {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 0;
+    }
+    .portfolio__stat {
+      padding: 24px 28px;
+      border-right: 1px solid var(--border);
+      border-bottom: 1px solid var(--border);
+    }
+    .portfolio__stat:nth-child(even) { border-right: none; }
+    .portfolio__stat-label {
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      color: var(--text-muted);
+      margin-bottom: 6px;
+    }
+    .portfolio__stat-value {
+      font-size: 28px;
+      font-weight: 900;
+      letter-spacing: -0.03em;
+      color: var(--text-primary);
+      font-variant-numeric: tabular-nums;
+    }
+    .portfolio__stat-value.accent { color: var(--accent); }
+    .portfolio__allocation {
+      padding: 24px 28px;
+    }
+    .portfolio__allocation-title {
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--text-muted);
+      margin-bottom: 20px;
+    }
+    .allocation-row {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 14px;
+    }
+    .allocation-row:last-child { margin-bottom: 0; }
+    .allocation-row__emoji { font-size: 16px; width: 24px; text-align: center; }
+    .allocation-row__label {
+      flex: 1;
+      font-size: 13px;
+      font-weight: 500;
+      color: var(--text-secondary);
+    }
+    .allocation-row__bar-wrap {
+      width: 80px;
+      height: 4px;
+      background: var(--border);
+      border-radius: 2px;
+      overflow: hidden;
+    }
+    .allocation-row__bar {
+      height: 100%;
+      background: var(--accent);
+      border-radius: 2px;
+      transform-origin: left;
+      transform: scaleX(0);
+      transition: transform 1s cubic-bezier(0.4,0,0.2,1);
+    }
+    .allocation-row__bar.animate { transform: scaleX(1); }
+    .allocation-row__amount {
+      font-size: 13px;
+      font-weight: 700;
+      color: var(--text-primary);
+      font-variant-numeric: tabular-nums;
+      min-width: 36px;
+      text-align: right;
+    }
+    .portfolio__tagline {
+      padding: 20px 28px;
+      border-top: 1px solid var(--border);
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--text-secondary);
+      font-style: italic;
+    }
+    .portfolio__tagline em { color: var(--accent); font-style: normal; }
+
+    /* ─── WHY STAKEBACK ─────────────────────────────────────────── */
+    .why {
+      background: var(--surface);
+      border-top: 1px solid var(--border);
+      border-bottom: 1px solid var(--border);
+    }
+    .why__grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 2px;
+      background: var(--border);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      overflow: hidden;
+    }
+    .why__card {
+      background: var(--surface);
+      padding: 40px 32px;
+      transition: background var(--transition);
+    }
+    .why__card:hover { background: var(--surface-2); }
+    .why__card-icon {
+      width: 48px; height: 48px;
+      border-radius: var(--radius-sm);
+      background: var(--accent-dim);
+      border: 1px solid rgba(163,230,53,0.2);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 22px;
+      margin-bottom: 24px;
+    }
+    .why__card-title {
+      font-size: 13px;
+      font-weight: 800;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      color: var(--text-primary);
+      margin-bottom: 12px;
+    }
+    .why__card-desc {
+      font-size: 14px;
+      color: var(--text-secondary);
+      line-height: 1.7;
+    }
+
+    /* ─── VALIDATION CTA ────────────────────────────────────────── */
+    .validation {
+      text-align: center;
+    }
+    .validation__card {
+      background: var(--surface);
+      border: 1px solid var(--border-light);
+      border-radius: var(--radius-xl);
+      padding: 80px 48px;
+      position: relative;
+      overflow: hidden;
+      max-width: 680px;
+      margin: 0 auto;
+    }
+    .validation__card::before {
+      content: '';
+      position: absolute;
+      bottom: 0; left: 0; right: 0;
+      height: 1px;
+      background: linear-gradient(90deg, transparent, var(--accent-glow), transparent);
+    }
+    .validation__glow {
+      position: absolute;
+      bottom: -100px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 400px;
+      height: 300px;
+      background: radial-gradient(ellipse, rgba(163,230,53,0.08), transparent 70%);
+      pointer-events: none;
+    }
+    .validation__title {
+      font-size: clamp(28px, 4vw, 44px);
+      font-weight: 900;
+      letter-spacing: -0.03em;
+      margin-bottom: 16px;
+    }
+    .validation__sub {
+      font-size: 16px;
+      color: var(--text-secondary);
+      line-height: 1.65;
+      margin-bottom: 40px;
+    }
+    .validation__time {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 13px;
+      color: var(--text-muted);
+      background: var(--surface-2);
+      border: 1px solid var(--border);
+      padding: 8px 16px;
+      border-radius: 100px;
+      margin-bottom: 32px;
+    }
+    .validation__time svg { width: 14px; height: 14px; }
+    .btn-secondary {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: transparent;
+      color: var(--text-primary);
+      font-size: 15px;
+      font-weight: 700;
+      padding: 16px 32px;
+      border-radius: 100px;
+      border: 1px solid var(--border-light);
+      transition: border-color var(--transition), background var(--transition), transform var(--transition);
+    }
+    .btn-secondary:hover {
+      border-color: var(--accent);
+      background: var(--accent-dim);
+      transform: translateY(-1px);
+    }
+
+    /* ─── FOOTER ─────────────────────────────────────────────────── */
+    .footer {
+      padding: 48px 0;
+      border-top: 1px solid var(--border);
+    }
+    .footer__inner {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 16px;
+    }
+    .footer__logo {
+      font-size: 18px;
+      font-weight: 800;
+      letter-spacing: -0.03em;
+    }
+    .footer__logo span { color: var(--accent); }
+    .footer__copy {
+      font-size: 12px;
+      color: var(--text-muted);
+    }
+    .footer__disclaimer {
+      width: 100%;
+      font-size: 11px;
+      color: var(--text-muted);
+      line-height: 1.6;
+      padding-top: 20px;
+      border-top: 1px solid var(--border);
+      max-width: 760px;
+    }
+
+    /* ─── MODAL ──────────────────────────────────────────────────── */
+    .modal-overlay {
+      position: fixed;
+      inset: 0;
+      z-index: 1000;
+      background: rgba(0,0,0,0.8);
+      backdrop-filter: blur(8px);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+      opacity: 0;
+      visibility: hidden;
+      pointer-events: none;
+      transition: opacity 0.25s ease, visibility 0.25s ease;
+      /* Isolate from scroll-snap so clicks always register */
+      isolation: isolate;
+      overscroll-behavior: contain;
+    }
+    .modal-overlay.open {
+      opacity: 1;
+      visibility: visible;
+      pointer-events: all;
+    }
+    .modal {
+      background: var(--surface);
+      border: 1px solid var(--border-light);
+      border-radius: var(--radius-xl);
+      width: 100%;
+      max-width: 560px;
+      max-height: 90vh;
+      overflow-y: auto;
+      position: relative;
+      transform: translateY(16px) scale(0.98);
+      transition: transform 0.3s cubic-bezier(0.34,1.56,0.64,1);
+    }
+    .modal-overlay.open .modal {
+      transform: translateY(0) scale(1);
+    }
+    .modal__close {
+      position: absolute;
+      top: 20px; right: 20px;
+      width: 36px; height: 36px;
+      background: var(--surface-2);
+      border: 1px solid var(--border);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--text-secondary);
+      transition: background var(--transition), color var(--transition);
+    }
+    .modal__close:hover {
+      background: var(--border);
+      color: var(--text-primary);
+    }
+    .modal__close svg { width: 16px; height: 16px; }
+    .modal__header {
+      padding: 40px 40px 32px;
+      border-bottom: 1px solid var(--border);
+    }
+    .modal__heading {
+      font-size: 28px;
+      font-weight: 900;
+      letter-spacing: -0.03em;
+      margin-bottom: 8px;
+    }
+    .modal__sub {
+      font-size: 14px;
+      color: var(--text-secondary);
+    }
+    .modal__progress {
+      display: flex;
+      gap: 4px;
+      margin-top: 24px;
+    }
+    .modal__progress-step {
+      flex: 1;
+      height: 3px;
+      background: var(--border);
+      border-radius: 2px;
+      transition: background 0.3s ease;
+    }
+    .modal__progress-step.done { background: var(--accent); }
+    .modal__body {
+      padding: 32px 40px 40px;
+    }
+    .form-field {
+      margin-bottom: 28px;
+    }
+    .form-field:last-child { margin-bottom: 0; }
+    .form-label {
+      display: block;
+      font-size: 15px;
+      font-weight: 700;
+      color: var(--text-primary);
+      margin-bottom: 16px;
+      line-height: 1.4;
+    }
+    .form-input {
+      width: 100%;
+      background: var(--bg);
+      border: 1px solid var(--border-light);
+      border-radius: var(--radius-sm);
+      padding: 14px 16px;
+      font-size: 15px;
+      font-family: var(--font);
+      color: var(--text-primary);
+      transition: border-color var(--transition), box-shadow var(--transition);
+      outline: none;
+    }
+    .form-input::placeholder { color: var(--text-muted); }
+    .form-input:focus {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px var(--accent-dim);
+    }
+    .radio-group {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+    .radio-option {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 14px 16px;
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      cursor: pointer;
+      transition: border-color var(--transition), background var(--transition);
+      position: relative;
+    }
+    .radio-option:hover {
+      border-color: var(--border-light);
+      background: var(--surface-2);
+    }
+    .radio-option input[type="radio"] {
+      position: absolute;
+      opacity: 0;
+      width: 0; height: 0;
+    }
+    .radio-option input:checked + .radio-custom {
+      background: var(--accent);
+      border-color: var(--accent);
+    }
+    .radio-option input:checked + .radio-custom::after {
+      opacity: 1;
+    }
+    .radio-option:has(input:checked) {
+      border-color: var(--accent);
+      background: var(--accent-dim);
+    }
+    .radio-custom {
+      width: 18px; height: 18px;
+      border-radius: 50%;
+      border: 2px solid var(--border-light);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      transition: background var(--transition), border-color var(--transition);
+      position: relative;
+    }
+    .radio-custom::after {
+      content: '';
+      width: 6px; height: 6px;
+      border-radius: 50%;
+      background: #000;
+      opacity: 0;
+      transition: opacity 0.15s;
+    }
+    .radio-option__text {
+      font-size: 14px;
+      font-weight: 500;
+      color: var(--text-primary);
+    }
+    .checkbox-group {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+    .checkbox-option {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 14px 16px;
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      cursor: pointer;
+      transition: border-color var(--transition), background var(--transition);
+    }
+    .checkbox-option:hover {
+      border-color: var(--border-light);
+      background: var(--surface-2);
+    }
+    .checkbox-option input[type="checkbox"] {
+      position: absolute;
+      opacity: 0;
+      width: 0; height: 0;
+    }
+    .checkbox-option:has(input:checked) {
+      border-color: var(--accent);
+      background: var(--accent-dim);
+    }
+    .checkbox-custom {
+      width: 18px; height: 18px;
+      border-radius: 4px;
+      border: 2px solid var(--border-light);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      transition: background var(--transition), border-color var(--transition);
+    }
+    .checkbox-option input:checked + .checkbox-custom {
+      background: var(--accent);
+      border-color: var(--accent);
+    }
+    .checkbox-custom svg {
+      width: 10px; height: 10px;
+      color: #000;
+      opacity: 0;
+    }
+    .checkbox-option input:checked + .checkbox-custom svg { opacity: 1; }
+    .form-textarea {
+      width: 100%;
+      background: var(--bg);
+      border: 1px solid var(--border-light);
+      border-radius: var(--radius-sm);
+      padding: 14px 16px;
+      font-size: 14px;
+      font-family: var(--font);
+      color: var(--text-primary);
+      resize: vertical;
+      min-height: 80px;
+      outline: none;
+      transition: border-color var(--transition), box-shadow var(--transition);
+    }
+    .form-textarea::placeholder { color: var(--text-muted); }
+    .form-textarea:focus {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px var(--accent-dim);
+    }
+    .form-footer {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-top: 32px;
+      gap: 16px;
+    }
+    .form-back {
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--text-muted);
+      transition: color var(--transition);
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .form-back:hover { color: var(--text-secondary); }
+    .btn-form {
+      flex: 1;
+      max-width: 200px;
+      background: var(--accent);
+      color: #000;
+      font-size: 14px;
+      font-weight: 700;
+      padding: 14px 24px;
+      border-radius: 100px;
+      transition: transform var(--transition), box-shadow var(--transition), opacity var(--transition);
+    }
+    .btn-form:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 8px 24px var(--accent-glow);
+    }
+    .btn-form:disabled {
+      opacity: 0.4;
+      cursor: not-allowed;
+      transform: none;
+      box-shadow: none;
+    }
+    .form-error {
+      font-size: 12px;
+      color: var(--red);
+      margin-top: 8px;
+      display: none;
+    }
+
+    /* ─── SUCCESS STATE ─────────────────────────────────────────── */
+    .modal-success {
+      display: none;
+      padding: 60px 40px;
+      text-align: center;
+    }
+    .modal-success.show { display: block; }
+    .modal-success__icon {
+      width: 64px; height: 64px;
+      border-radius: 50%;
+      background: var(--accent-dim);
+      border: 2px solid var(--accent);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 0 auto 24px;
+      font-size: 28px;
+    }
+    .modal-success__title {
+      font-size: 28px;
+      font-weight: 900;
+      letter-spacing: -0.03em;
+      margin-bottom: 12px;
+    }
+    .modal-success__desc {
+      font-size: 15px;
+      color: var(--text-secondary);
+      line-height: 1.7;
+      margin-bottom: 32px;
+    }
+    .share-row {
+      display: flex;
+      gap: 10px;
+      justify-content: center;
+      flex-wrap: wrap;
+    }
+    .share-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: var(--surface-2);
+      border: 1px solid var(--border);
+      border-radius: 100px;
+      padding: 10px 18px;
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--text-secondary);
+      transition: border-color var(--transition), color var(--transition), background var(--transition);
+    }
+    .share-btn:hover {
+      border-color: var(--accent);
+      color: var(--accent);
+      background: var(--accent-dim);
+    }
+
+    /* ─── SCROLL REVEAL ──────────────────────────────────────────── */
+    .reveal {
+      opacity: 0;
+      transform: translateY(24px);
+      transition: opacity 0.6s ease, transform 0.6s ease;
+    }
+    .reveal.visible {
+      opacity: 1;
+      transform: translateY(0);
+    }
+    .reveal-delay-1 { transition-delay: 0.1s; }
+    .reveal-delay-2 { transition-delay: 0.2s; }
+    .reveal-delay-3 { transition-delay: 0.3s; }
+    .reveal-delay-4 { transition-delay: 0.4s; }
+
+    /* ─── RESPONSIVE ─────────────────────────────────────────────── */
+
+    /* Tablet: 768px and below */
+    @media (max-width: 768px) {
+
+      section {
+        min-height: auto;
+        padding: 80px 0;
+      }
+
+      /* Nav */
+      .nav { padding: 14px 0; }
+      .nav__logo { font-size: 18px; }
+
+      /* Hero */
+      .hero { padding: 100px 0 48px; }
+      .hero__heading { font-size: clamp(36px, 9vw, 56px); }
+      .hero__sub { font-size: 15px; }
+
+      /* Problem */
+      .problem__grid { grid-template-columns: 1fr; gap: 32px; }
+
+      /* How it works */
+      .how__steps {
+        grid-template-columns: 1fr;
+        gap: 2px;
+      }
+      .how__step { padding: 32px 24px; }
+
+      /* Rules */
+      .rules__grid { grid-template-columns: 1fr; gap: 12px; }
+
+      /* Why */
+      .why__grid { grid-template-columns: 1fr; gap: 2px; }
+      .why__card { padding: 32px 24px; }
+
+      /* Portfolio */
+      .portfolio__card { margin: 0; }
+
+      /* Validation */
+      .validation__card { padding: 48px 24px; }
+      .validation__title { font-size: 32px; }
+
+      /* Section headings */
+      .section__title { font-size: clamp(24px, 5vw, 36px); }
+
+      /* Modal */
+      .modal { border-radius: var(--radius-lg); }
+      .modal__header { padding: 28px 24px 20px; }
+      .modal__heading { font-size: 22px; }
+      .modal__body { padding: 24px 24px 28px; }
+      .modal-success { padding: 40px 24px; }
+
+      /* Footer */
+      .footer__inner { flex-direction: column; align-items: flex-start; gap: 12px; }
+    }
+
+    /* Mobile: 480px and below (iPhone standard + Android mid-range) */
+    @media (max-width: 480px) {
+      /* Containers */
+      .container { padding: 0 16px; }
+
+      /* Nav */
+      .nav { padding: 12px 0; }
+      .nav__logo { font-size: 17px; }
+      .nav__cta { font-size: 12px; padding: 9px 16px; }
+
+      /* Hero */
+      .hero { padding: 90px 0 40px; }
+      .hero__eyebrow { margin-bottom: 16px; }
+      .hero__heading {
+        font-size: clamp(32px, 10vw, 48px);
+        letter-spacing: -0.03em;
+      }
+      .hero__sub { font-size: 14px; margin-bottom: 28px; }
+      .hero__cta-group { gap: 10px; }
+      .btn-primary {
+        width: 100%;
+        justify-content: center;
+        font-size: 14px;
+        padding: 14px 24px;
+      }
+      .hero__microcopy { font-size: 12px; }
+
+      /* Brand pills */
+      .brand-pill { font-size: 12px; padding: 6px 12px; }
+
+      /* Flow card */
+      .flow-card { padding: 28px 20px; border-radius: var(--radius-lg); }
+      .flow-step__value { font-size: 18px; }
+
+      /* Problem section */
+      .spending-list__header { padding: 12px 16px; }
+      .spending-item { padding: 12px 16px; }
+      .spending-item__amount { font-size: 13px; }
+      .problem__insight p { font-size: 14px; }
+
+      /* Section headers */
+      .section__title { font-size: clamp(22px, 7vw, 32px); letter-spacing: -0.025em; }
+      .section__desc { font-size: 14px; }
+      .section { padding: 64px 0; }
+
+      /* Idea quote */
+      .idea-quote__text { font-size: 15px; }
+      .idea-quote__after .idea-quote__text { font-size: 17px; }
+
+      /* How it works */
+      .how__step-title { font-size: 16px; }
+      .how__step-desc { font-size: 13px; }
+      .how__step-example { font-size: 11px; }
+
+      /* Rules */
+      .rule-card { padding: 22px 20px; }
+      .rule-card__rule { font-size: 16px; }
+
+      /* Portfolio */
+      .portfolio__stat-value { font-size: 22px; }
+      .portfolio__header { padding: 20px 20px 16px; }
+      .portfolio__stats { grid-template-columns: 1fr 1fr; }
+      .portfolio__stat { padding: 18px 20px; }
+      .portfolio__allocation { padding: 18px 20px; }
+      .allocation-row__bar-wrap { width: 56px; }
+
+      /* Why cards */
+      .why__card-icon { width: 40px; height: 40px; font-size: 18px; margin-bottom: 16px; }
+      .why__card-title { font-size: 12px; }
+      .why__card-desc { font-size: 13px; }
+
+      /* Validation */
+      .validation__card { padding: 40px 20px; }
+      .validation__title { font-size: 28px; }
+      .validation__sub { font-size: 14px; }
+      .btn-secondary { font-size: 14px; padding: 14px 24px; }
+
+      /* Modal — sheet style on mobile */
+      .modal-overlay {
+        align-items: flex-end;
+        padding: 0;
+      }
+      .modal {
+        border-radius: var(--radius-xl) var(--radius-xl) 0 0;
+        max-height: 92vh;
+      }
+      .modal__close { top: 16px; right: 16px; }
+      .modal__header { padding: 24px 20px 18px; }
+      .modal__heading { font-size: 20px; }
+      .modal__sub { font-size: 13px; }
+      .modal__body { padding: 20px 20px 32px; }
+      .form-label { font-size: 14px; margin-bottom: 12px; }
+      .radio-option { padding: 12px 14px; }
+      .radio-option__text { font-size: 13px; }
+      .form-footer { flex-wrap: wrap; gap: 10px; }
+      .btn-form { max-width: 100%; width: 100%; }
+      .form-back { width: 100%; justify-content: center; }
+      .modal-success { padding: 32px 20px; }
+      .modal-success__title { font-size: 22px; }
+      .modal-success__desc { font-size: 13px; }
+      .share-row { flex-direction: column; }
+      .share-btn { justify-content: center; }
+
+      /* Footer */
+      .footer { padding: 36px 0; }
+      .footer__disclaimer { font-size: 10px; }
+    }
+
+    /* Small phones: 360px (common Android size) */
+    @media (max-width: 360px) {
+      .hero__heading { font-size: 30px; }
+      .section__title { font-size: 20px; }
+      .portfolio__stats { grid-template-columns: 1fr; }
+      .portfolio__stat { border-right: none; }
+    }
+
+    /* Safe area insets for iPhone notch / Dynamic Island */
+    @supports (padding-top: env(safe-area-inset-top)) {
+      .nav {
+        padding-top: calc(14px + env(safe-area-inset-top));
+      }
+      .modal-overlay {
+        padding-bottom: env(safe-area-inset-bottom);
+      }
+      footer {
+        padding-bottom: calc(48px + env(safe-area-inset-bottom));
+      }
+    }
+  </style>
+</head>
+<body>
+
+<!-- ─── NAVBAR ──────────────────────────────────────────────────── -->
+<nav class="nav" id="nav">
+  <div class="container">
+    <div class="nav__inner">
+      <a href="#" class="nav__logo">Stake<span>Back</span></a>
+      <button class="nav__cta" id="nav-cta" data-track="nav_cta_clicked" aria-label="Join the waitlist">
+        <span>Join Waitlist</span>
+      </button>
+    </div>
+  </div>
+</nav>
+
+<!-- ─── HERO ────────────────────────────────────────────────────── -->
+<section class="hero" id="hero">
+  <div class="hero__glow"></div>
+  <div class="container">
+    <div class="hero__content">
+      <div class="hero__eyebrow">
+        <span class="tag">A new way to invest</span>
+      </div>
+      <h1 class="hero__heading">
+        Spend like you<br>already do.<br>
+        <em>Own what you buy.</em>
+      </h1>
+      <p class="hero__sub">
+        Every day, your money flows through businesses you know.
+        Stakeback is building a simpler way to turn everyday spending
+        into investing — connecting the brands you spend with to
+        investment opportunities, automatically.
+      </p>
+      <div class="hero__cta-group">
+        <button class="btn-primary" id="hero-cta" data-track="hero_cta_clicked">
+          <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M2 8h12M9 3l5 5-5 5"/>
+          </svg>
+          Join the waitlist
+        </button>
+        <p class="hero__microcopy">No investment account required yet. We're building this with early users.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Brand logos inside hero so they snap together -->
+  <div class="brands">
+    <div class="container">
+      <p class="brands__label">Brands your spending could connect to</p>
+    </div>
+    <div class="brands__scroll">
+      <div class="brands__track" aria-hidden="true">
+        <span class="brand-pill"><span class="dot" style="background:#FF6B35"></span>Swiggy</span>
+        <span class="brand-pill"><span class="dot" style="background:#FF2D2D"></span>Zomato</span>
+        <span class="brand-pill"><span class="dot" style="background:#0066FF"></span>Domino's</span>
+        <span class="brand-pill"><span class="dot" style="background:#00A86B"></span>Starbucks</span>
+        <span class="brand-pill"><span class="dot" style="background:#FF9900"></span>Amazon</span>
+        <span class="brand-pill"><span class="dot" style="background:#1DA1F2"></span>MakeMyTrip</span>
+        <span class="brand-pill"><span class="dot" style="background:#00D4AA"></span>Blinkit</span>
+        <span class="brand-pill"><span class="dot" style="background:#1C1C1C"></span>Uber</span>
+        <span class="brand-pill"><span class="dot" style="background:#6C63FF"></span>Zudio</span>
+        <span class="brand-pill"><span class="dot" style="background:#E91E8C"></span>Nykaa</span>
+        <span class="brand-pill"><span class="dot" style="background:#FF5722"></span>Ola</span>
+        <span class="brand-pill"><span class="dot" style="background:#02A4D3"></span>IndiGo</span>
+      </div>
+      <div class="brands__track" aria-hidden="true">
+        <span class="brand-pill"><span class="dot" style="background:#FF6B35"></span>Swiggy</span>
+        <span class="brand-pill"><span class="dot" style="background:#FF2D2D"></span>Zomato</span>
+        <span class="brand-pill"><span class="dot" style="background:#0066FF"></span>Domino's</span>
+        <span class="brand-pill"><span class="dot" style="background:#00A86B"></span>Starbucks</span>
+        <span class="brand-pill"><span class="dot" style="background:#FF9900"></span>Amazon</span>
+        <span class="brand-pill"><span class="dot" style="background:#1DA1F2"></span>MakeMyTrip</span>
+        <span class="brand-pill"><span class="dot" style="background:#00D4AA"></span>Blinkit</span>
+        <span class="brand-pill"><span class="dot" style="background:#1C1C1C"></span>Uber</span>
+        <span class="brand-pill"><span class="dot" style="background:#6C63FF"></span>Zudio</span>
+        <span class="brand-pill"><span class="dot" style="background:#E91E8C"></span>Nykaa</span>
+        <span class="brand-pill"><span class="dot" style="background:#FF5722"></span>Ola</span>
+        <span class="brand-pill"><span class="dot" style="background:#02A4D3"></span>IndiGo</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ─── PRODUCT VISUAL ───────────────────────────────────────────── -->
+<!-- <section class="product-visual">
+  <div class="container">
+    <div class="flow-card reveal" id="flow-card">
+      <div class="flow-step">
+        <div class="flow-step__icon">🍕</div>
+        <div>
+          <div class="flow-step__label">You spent</div>
+          <div class="flow-step__value">₹1,000</div>
+          <div class="flow-step__sub">Domino's · Pizza</div>
+        </div>
+      </div>
+
+      <div class="flow-connector">
+        <div class="flow-connector__dot"></div>
+        <div class="flow-connector__dot"></div>
+        <div class="flow-connector__dot accent"></div>
+      </div>
+
+      <div class="flow-step">
+        <div class="flow-step__icon">🔍</div>
+        <div>
+          <div class="flow-step__label">Stakeback identifies</div>
+          <div class="flow-step__value">Domino's India</div>
+          <div class="flow-step__sub">Business matched · Investment opportunity found</div>
+        </div>
+      </div>
+
+      <div class="flow-connector">
+        <div class="flow-connector__dot"></div>
+        <div class="flow-connector__dot"></div>
+        <div class="flow-connector__dot accent"></div>
+      </div>
+
+      <div class="flow-step flow-step--result">
+        <div class="flow-step__icon" style="background: var(--accent-dim); border-color: rgba(163,230,53,0.3)">📈</div>
+        <div>
+          <div class="flow-step__label">Your allocation</div>
+          <div class="flow-step__value">₹50</div>
+          <div class="flow-step__sub">Invested toward your rule</div>
+        </div>
+      </div>
+
+      <div class="flow-disclaimer">
+        <strong>Illustrative example.</strong> Investment mechanism subject to product availability and applicable regulations. Stakeback is currently in concept validation — real-money investing is not yet available.
+      </div>
+    </div>
+  </div>
+</section> -->
+
+<!-- ─── THE PROBLEM ─────────────────────────────────────────────── -->
+<section class="section problem" id="problem">
+  <div class="container">
+    <div class="section__header section__header--center reveal">
+      <div class="section__tag"><span class="tag">The problem</span></div>
+      <h2 class="section__title">You're already investing.<br>You just don't call it investing.</h2>
+      <p class="section__desc">Every time you spend money, you're supporting a business. But your relationship with that business ends when the transaction does.</p>
+    </div>
+    <div class="problem__grid">
+      <div class="reveal">
+        <div class="spending-list">
+          <div class="spending-list__header">
+            <div class="spending-list__dot"></div>
+            <span class="spending-list__title">This month's spending</span>
+          </div>
+          <div class="spending-item">
+            <div class="spending-item__left">
+              <div class="spending-item__emoji">🍕</div>
+              <div>
+                <div class="spending-item__name">Domino's</div>
+                <div class="spending-item__cat">Food & Dining</div>
+              </div>
+            </div>
+            <div class="spending-item__amount">₹1,240</div>
+          </div>
+          <div class="spending-item">
+            <div class="spending-item__left">
+              <div class="spending-item__emoji">👗</div>
+              <div>
+                <div class="spending-item__name">Zudio</div>
+                <div class="spending-item__cat">Fashion</div>
+              </div>
+            </div>
+            <div class="spending-item__amount">₹780</div>
+          </div>
+          <div class="spending-item">
+            <div class="spending-item__left">
+              <div class="spending-item__emoji">📦</div>
+              <div>
+                <div class="spending-item__name">Amazon</div>
+                <div class="spending-item__cat">Consumer</div>
+              </div>
+            </div>
+            <div class="spending-item__amount">₹1,500</div>
+          </div>
+          <div class="spending-item">
+            <div class="spending-item__left">
+              <div class="spending-item__emoji">☕</div>
+              <div>
+                <div class="spending-item__name">Starbucks</div>
+                <div class="spending-item__cat">Food & Drink</div>
+              </div>
+            </div>
+            <div class="spending-item__amount">₹620</div>
+          </div>
+          <div class="spending-item">
+            <div class="spending-item__left">
+              <div class="spending-item__emoji">✈️</div>
+              <div>
+                <div class="spending-item__name">MakeMyTrip</div>
+                <div class="spending-item__cat">Travel</div>
+              </div>
+            </div>
+            <div class="spending-item__amount">₹2,100</div>
+          </div>
+        </div>
+        <div class="problem__arrow">
+          <div class="problem__arrow-line"></div>
+          <div class="problem__arrow-text">↓</div>
+          <div class="problem__arrow-text" style="font-style: italic; font-weight: 400; font-size: 14px;">Where did my money go?</div>
+        </div>
+        <div class="problem__question">
+          ₹6,240 spent. <br>₹0 invested. <br>0 businesses owned.
+        </div>
+      </div>
+      <div class="reveal reveal-delay-2">
+        <div style="padding: 0">
+          <p style="font-size: 18px; font-weight: 700; line-height: 1.6; margin-bottom: 24px">
+            You buy the food.<br>
+            You use the app.<br>
+            You book the flight.<br>
+            You shop the brand.
+          </p>
+          <p style="font-size: 16px; color: var(--text-secondary); line-height: 1.7; margin-bottom: 32px">
+            You know these businesses. You trust them with your money every single month. But your spending disappears into a history log — and your relationship with those businesses ends at checkout.
+          </p>
+          <div class="problem__insight">
+            <p>We think it could be different.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ─── THE IDEA ────────────────────────────────────────────────── -->
+<section class="section" id="idea">
+  <div class="container">
+    <div class="section__header section__header--center reveal">
+      <div class="section__tag"><span class="tag">The idea</span></div>
+      <h2 class="section__title">What if your spending could<br>come back as ownership?</h2>
+      <p class="section__desc">Stakeback is being built around a simple idea: the businesses you interact with every day should have a connection to the way you invest.</p>
+    </div>
+    <div class="idea-quote reveal">
+      <div class="idea-quote__before">
+        <div class="idea-quote__label">The old question</div>
+        <div class="idea-quote__text">"What should I invest in?"</div>
+      </div>
+      <div class="idea-quote__vs">
+        <div class="idea-quote__vs-line"></div>
+        <span>Stakeback starts with</span>
+        <div class="idea-quote__vs-line"></div>
+      </div>
+      <div class="idea-quote__after">
+        <div class="idea-quote__label">A better starting point</div>
+        <div class="idea-quote__text">"Where am I already spending?"</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ─── HOW IT WORKS ────────────────────────────────────────────── -->
+<section class="section how" id="how">
+  <div class="container">
+    <div class="section__header section__header--center reveal">
+      <div class="section__tag"><span class="tag">How it works</span></div>
+      <h2 class="section__title">Three steps.<br>No new habits required.</h2>
+    </div>
+    <div class="how__steps reveal">
+      <div class="how__step">
+        <div class="how__step-num">01 — Spend</div>
+        <span class="how__step-icon">💳</span>
+        <h3 class="how__step-title">Continue spending normally</h3>
+        <p class="how__step-desc">Use the apps, cards and payment methods you already use. There is nothing new to learn.</p>
+        <div class="how__step-example">
+          <span class="hi">₹1,000</span><br>
+          Domino's<br>
+          <span style="color: var(--text-muted)">UPI · 14 Sep</span>
+        </div>
+      </div>
+      <div class="how__step">
+        <div class="how__step-num">02 — Identify</div>
+        <span class="how__step-icon">🔍</span>
+        <h3 class="how__step-title">Stakeback identifies the business</h3>
+        <p class="how__step-desc">Our technology connects transaction data to the relevant brand, company, and available investment opportunity.</p>
+        <div class="how__step-example">
+          Domino's<br>
+          <span class="hi">↓</span><br>
+          Jubilant FoodWorks<br>
+          <span class="hi">↓</span><br>
+          Investment opportunity
+        </div>
+      </div>
+      <div class="how__step">
+        <div class="how__step-num">03 — Invest</div>
+        <span class="how__step-icon">🌱</span>
+        <h3 class="how__step-title">Invest automatically</h3>
+        <p class="how__step-desc">Based on rules you choose, eligible spending contributes toward your investment strategy through the appropriate regulated infrastructure.</p>
+        <div class="how__step-example">
+          Your spending<br>
+          <span class="hi">↓</span><br>
+          Your rule<br>
+          <span class="hi">↓</span><br>
+          <span class="hi">Your investment</span>
+        </div>
+      </div>
+    </div>
+    <p class="how__disclaimer reveal">Investment products, execution methods and availability will depend on the final product structure, partners and applicable regulations.</p>
+  </div>
+</section>
+
+<!-- ─── YOUR RULE ───────────────────────────────────────────────── -->
+<section class="section" id="rules">
+  <div class="container">
+    <div class="section__header section__header--center reveal">
+      <div class="section__tag"><span class="tag">Your rule</span></div>
+      <h2 class="section__title">You decide how much<br>your spending means.</h2>
+      <p class="section__desc">Stakeback isn't an AI telling you what to buy. You set the rule. Your money follows your logic — not ours.</p>
+    </div>
+    <div class="rules__grid">
+      <div class="rule-card reveal reveal-delay-1">
+        <div class="rule-card__type">Fixed</div>
+        <div class="rule-card__rule"><em>₹10</em> whenever I shop at an eligible business</div>
+        <p class="rule-card__desc">Simple and predictable. A flat amount invested every time you spend with a connected brand.</p>
+      </div>
+      <div class="rule-card reveal reveal-delay-2">
+        <div class="rule-card__type">Percentage</div>
+        <div class="rule-card__rule">Invest <em>2%</em> of eligible spending</div>
+        <p class="rule-card__desc">Your investment scales with your spending. Bigger purchases mean bigger contributions, proportionally.</p>
+      </div>
+      <div class="rule-card reveal reveal-delay-3">
+        <div class="rule-card__type">Round-up</div>
+        <div class="rule-card__rule">Round every purchase up and invest <em>the difference</em></div>
+        <p class="rule-card__desc">The smallest possible step. The spare change from every transaction gets put to work.</p>
+      </div>
+      <div class="rule-card reveal reveal-delay-4">
+        <div class="rule-card__type">Selective</div>
+        <div class="rule-card__rule">Only invest when I spend with <em>businesses I choose</em></div>
+        <p class="rule-card__desc">Full control. Pick which brands trigger your investing. Skip the rest.</p>
+      </div>
+    </div>
+    <p style="text-align: center; font-size: 12px; color: var(--text-muted); margin-top: 24px;">These are conceptual examples of possible future rules, not promises about V1 functionality.</p>
+  </div>
+</section>
+
+<!-- ─── PORTFOLIO VISUAL ─────────────────────────────────────────── -->
+<section class="section" style="background: var(--surface); border-top: 1px solid var(--border); border-bottom: 1px solid var(--border);" id="portfolio">
+  <div class="container">
+    <div class="section__header section__header--center reveal">
+      <div class="section__tag"><span class="tag">Your Stakeback</span></div>
+      <h2 class="section__title">Your spending tells a story.<br>Your portfolio could too.</h2>
+    </div>
+    <div class="portfolio__card reveal" id="portfolio-card">
+      <div class="portfolio__header">
+        <div class="portfolio__title">Your Stakeback</div>
+        <div class="portfolio__period">This month · Illustrative example</div>
+      </div>
+      <div class="portfolio__stats">
+        <div class="portfolio__stat">
+          <div class="portfolio__stat-label">Eligible spending</div>
+          <div class="portfolio__stat-value">₹4,820</div>
+        </div>
+        <div class="portfolio__stat">
+          <div class="portfolio__stat-label">Investment allocation</div>
+          <div class="portfolio__stat-value accent">₹186</div>
+        </div>
+      </div>
+      <div class="portfolio__allocation">
+        <div class="portfolio__allocation-title">Where your spending went</div>
+        <div class="allocation-row">
+          <span class="allocation-row__emoji">🍕</span>
+          <span class="allocation-row__label">Food & Dining</span>
+          <div class="allocation-row__bar-wrap"><div class="allocation-row__bar" style="--w: 0.63"></div></div>
+          <span class="allocation-row__amount">₹62</span>
+        </div>
+        <div class="allocation-row">
+          <span class="allocation-row__emoji">🛍</span>
+          <span class="allocation-row__label">Consumer</span>
+          <div class="allocation-row__bar-wrap"><div class="allocation-row__bar" style="--w: 0.49"></div></div>
+          <span class="allocation-row__amount">₹48</span>
+        </div>
+        <div class="allocation-row">
+          <span class="allocation-row__emoji">✈️</span>
+          <span class="allocation-row__label">Travel</span>
+          <div class="allocation-row__bar-wrap"><div class="allocation-row__bar" style="--w: 0.42"></div></div>
+          <span class="allocation-row__amount">₹41</span>
+        </div>
+        <div class="allocation-row">
+          <span class="allocation-row__emoji">📱</span>
+          <span class="allocation-row__label">Technology</span>
+          <div class="allocation-row__bar-wrap"><div class="allocation-row__bar" style="--w: 0.36"></div></div>
+          <span class="allocation-row__amount">₹35</span>
+        </div>
+      </div>
+      <div class="portfolio__tagline">Your spending tells a story. <em>Your portfolio could too.</em></div>
+    </div>
+  </div>
+</section>
+
+<!-- ─── WHY STAKEBACK ─────────────────────────────────────────────── -->
+<section class="section why" id="why">
+  <div class="container">
+    <div class="section__header section__header--center reveal">
+      <div class="section__tag"><span class="tag">Why Stakeback</span></div>
+      <h2 class="section__title">Investing that fits<br>how you already live.</h2>
+    </div>
+    <div class="why__grid reveal">
+      <div class="why__card">
+        <div class="why__card-icon">🔄</div>
+        <div class="why__card-title">Invest without another habit</div>
+        <p class="why__card-desc">You already spend every day. Stakeback is designed to connect investing with behaviour you already have — not create a new one.</p>
+      </div>
+      <div class="why__card">
+        <div class="why__card-icon">🏪</div>
+        <div class="why__card-title">Understand what you own</div>
+        <p class="why__card-desc">See how your everyday spending connects to businesses and investment opportunities. No more guessing which stocks matter to you.</p>
+      </div>
+      <div class="why__card">
+        <div class="why__card-icon">🌱</div>
+        <div class="why__card-title">Start small</div>
+        <p class="why__card-desc">The concept is designed around small, repeatable contributions rather than requiring large, intimidating investment decisions.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ─── VALIDATION CTA ────────────────────────────────────────────── -->
+<section class="section validation" id="validation">
+  <div class="container">
+    <div class="validation__card reveal">
+      <div class="validation__glow"></div>
+      <div class="section__tag" style="display: inline-flex; margin-bottom: 24px"><span class="tag">Early access</span></div>
+      <h2 class="validation__title">Help us build<br>it right.</h2>
+      <p class="validation__sub">We're building Stakeback for India, and we're still figuring out what the best version looks like. Join the early access list and tell us how you currently spend, save and invest.</p>
+      <div class="validation__time">
+        <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2">
+          <circle cx="8" cy="8" r="6"/><path d="M8 5v3l2 2"/>
+        </svg>
+        Takes less than 60 seconds
+      </div>
+      <br>
+      <button class="btn-primary" id="validation-cta" data-track="validation_cta_clicked" style="margin: 0 auto">
+        Tell us what you think
+        <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M2 8h12M9 3l5 5-5 5"/>
+        </svg>
+      </button>
+    </div>
+  </div>
+</section>
+
+<!-- ─── FOOTER ──────────────────────────────────────────────────── -->
+<footer class="footer">
+  <div class="container">
+    <div class="footer__inner">
+      <div class="footer__logo">stake<span>back</span></div>
+      <div class="footer__copy">© 2026 Stakeback. Concept validation phase.</div>
+      <div class="footer__disclaimer">
+        Stakeback is currently a concept in validation. Nothing on this page constitutes financial advice, an investment recommendation, or a solicitation to invest. All examples shown are illustrative only. Investment products, mechanisms and their availability are subject to final product structure, partner agreements and applicable Indian regulations. We are not yet an investment platform.
+      </div>
+    </div>
+  </div>
+</footer>
+
+<!-- ─── MODAL ───────────────────────────────────────────────────── -->
+<div class="modal-overlay" id="modal" role="dialog" aria-modal="true" aria-labelledby="modal-heading">
+  <div class="modal">
+    <button class="modal__close" id="modal-close-btn" aria-label="Close">
+      <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2">
+        <path d="M4 4l8 8M12 4l-8 8"/>
+      </svg>
+    </button>
+
+    <!-- Form state -->
+    <div id="modal-form-state">
+      <div class="modal__header">
+        <h2 class="modal__heading" id="modal-heading">You're early.</h2>
+        <p class="modal__sub">Help us understand whether Stakeback should exist. <strong style="color: var(--text-primary)">5 questions. Under a minute.</strong></p>
+        <div class="modal__progress" id="progress-bar">
+          <div class="modal__progress-step" id="p1"></div>
+          <div class="modal__progress-step" id="p2"></div>
+          <div class="modal__progress-step" id="p3"></div>
+          <div class="modal__progress-step" id="p4"></div>
+          <div class="modal__progress-step" id="p5"></div>
+        </div>
+      </div>
+      <div class="modal__body">
+        <form id="waitlist-form" novalidate>
+
+          <!-- Q1: Email -->
+          <div class="form-field" id="field-1">
+            <label class="form-label" for="email">
+              Where should we send your early-access invite?
+            </label>
+            <input
+              class="form-input"
+              type="email"
+              id="email"
+              name="email"
+              placeholder="you@example.com"
+              autocomplete="email"
+              required
+            />
+            <div class="form-error" id="email-error">Please enter a valid email address.</div>
+          </div>
+
+          <!-- Q2: Investing frequency -->
+          <div class="form-field" id="field-2" style="display:none">
+            <label class="form-label">How often do you currently invest?</label>
+            <div class="radio-group">
+              <label class="radio-option">
+                <input type="radio" name="investment_frequency" value="I don't invest yet" />
+                <span class="radio-custom"></span>
+                <span class="radio-option__text">I don't invest yet</span>
+              </label>
+              <label class="radio-option">
+                <input type="radio" name="investment_frequency" value="Less than once a month" />
+                <span class="radio-custom"></span>
+                <span class="radio-option__text">Less than once a month</span>
+              </label>
+              <label class="radio-option">
+                <input type="radio" name="investment_frequency" value="1–3 times a month" />
+                <span class="radio-custom"></span>
+                <span class="radio-option__text">1–3 times a month</span>
+              </label>
+              <label class="radio-option">
+                <input type="radio" name="investment_frequency" value="Every week" />
+                <span class="radio-custom"></span>
+                <span class="radio-option__text">Every week</span>
+              </label>
+              <label class="radio-option">
+                <input type="radio" name="investment_frequency" value="Almost every day" />
+                <span class="radio-custom"></span>
+                <span class="radio-option__text">Almost every day</span>
+              </label>
+            </div>
+            <div class="form-error" id="freq-error">Please select one option.</div>
+          </div>
+
+          <!-- Q3: Interest -->
+          <div class="form-field" id="field-3" style="display:none">
+            <label class="form-label">If Stakeback could automatically turn part of your everyday spending into investing, how interested would you be?</label>
+            <div class="radio-group">
+              <label class="radio-option">
+                <input type="radio" name="product_interest" value="I'd definitely use it" />
+                <span class="radio-custom"></span>
+                <span class="radio-option__text">I'd definitely use it</span>
+              </label>
+              <label class="radio-option">
+                <input type="radio" name="product_interest" value="I'd probably use it" />
+                <span class="radio-custom"></span>
+                <span class="radio-option__text">I'd probably use it</span>
+              </label>
+              <label class="radio-option">
+                <input type="radio" name="product_interest" value="I'd try it once" />
+                <span class="radio-custom"></span>
+                <span class="radio-option__text">I'd try it once</span>
+              </label>
+              <label class="radio-option">
+                <input type="radio" name="product_interest" value="Probably not" />
+                <span class="radio-custom"></span>
+                <span class="radio-option__text">Probably not</span>
+              </label>
+              <label class="radio-option">
+                <input type="radio" name="product_interest" value="Not interested" />
+                <span class="radio-custom"></span>
+                <span class="radio-option__text">Not interested</span>
+              </label>
+            </div>
+            <div class="form-error" id="interest-error">Please select one option.</div>
+          </div>
+
+          <!-- Q4: Monthly amount -->
+          <div class="form-field" id="field-4" style="display:none">
+            <label class="form-label">How much would you realistically be comfortable investing automatically each month?</label>
+            <div class="radio-group">
+              <label class="radio-option">
+                <input type="radio" name="monthly_investment_range" value="₹0 – ₹250" />
+                <span class="radio-custom"></span>
+                <span class="radio-option__text">₹0 – ₹250</span>
+              </label>
+              <label class="radio-option">
+                <input type="radio" name="monthly_investment_range" value="₹250 – ₹500" />
+                <span class="radio-custom"></span>
+                <span class="radio-option__text">₹250 – ₹500</span>
+              </label>
+              <label class="radio-option">
+                <input type="radio" name="monthly_investment_range" value="₹500 – ₹1,000" />
+                <span class="radio-custom"></span>
+                <span class="radio-option__text">₹500 – ₹1,000</span>
+              </label>
+              <label class="radio-option">
+                <input type="radio" name="monthly_investment_range" value="₹1,000 – ₹2,500" />
+                <span class="radio-custom"></span>
+                <span class="radio-option__text">₹1,000 – ₹2,500</span>
+              </label>
+              <label class="radio-option">
+                <input type="radio" name="monthly_investment_range" value="₹2,500+" />
+                <span class="radio-custom"></span>
+                <span class="radio-option__text">₹2,500+</span>
+              </label>
+            </div>
+            <div class="form-error" id="amount-error">Please select one option.</div>
+          </div>
+
+          <!-- Q5: Concern -->
+          <div class="form-field" id="field-5" style="display:none">
+            <label class="form-label">What's the biggest thing that would stop you from using Stakeback?</label>
+            <div class="radio-group">
+              <label class="radio-option">
+                <input type="radio" name="biggest_concern" value="I don't trust automatic investing" />
+                <span class="radio-custom"></span>
+                <span class="radio-option__text">I don't trust automatic investing</span>
+              </label>
+              <label class="radio-option">
+                <input type="radio" name="biggest_concern" value="I don't want to invest in individual businesses" />
+                <span class="radio-custom"></span>
+                <span class="radio-option__text">I don't want to invest in individual businesses</span>
+              </label>
+              <label class="radio-option">
+                <input type="radio" name="biggest_concern" value="Fees would be a concern" />
+                <span class="radio-custom"></span>
+                <span class="radio-option__text">Fees would be a concern</span>
+              </label>
+              <label class="radio-option">
+                <input type="radio" name="biggest_concern" value="I don't want to connect my financial accounts" />
+                <span class="radio-custom"></span>
+                <span class="radio-option__text">I don't want to connect my financial accounts</span>
+              </label>
+              <label class="radio-option">
+                <input type="radio" name="biggest_concern" value="I don't understand how it would work" />
+                <span class="radio-custom"></span>
+                <span class="radio-option__text">I don't understand how it would work</span>
+              </label>
+              <label class="radio-option">
+                <input type="radio" name="biggest_concern" value="Regulatory / security concerns" />
+                <span class="radio-custom"></span>
+                <span class="radio-option__text">Regulatory / security concerns</span>
+              </label>
+              <label class="radio-option">
+                <input type="radio" name="biggest_concern" value="I simply don't invest" />
+                <span class="radio-custom"></span>
+                <span class="radio-option__text">I simply don't invest</span>
+              </label>
+              <label class="radio-option">
+                <input type="radio" name="biggest_concern" value="Something else" />
+                <span class="radio-custom"></span>
+                <span class="radio-option__text">Something else</span>
+              </label>
+            </div>
+            <div style="margin-top: 16px">
+              <label class="form-label" style="font-size: 13px; font-weight: 500; color: var(--text-secondary); margin-bottom: 8px" for="free_text">Anything else? (optional)</label>
+              <textarea
+                class="form-textarea"
+                id="free_text"
+                name="free_text"
+                placeholder="Your thoughts, questions, or suggestions..."
+              ></textarea>
+            </div>
+          </div>
+
+          <div class="form-footer">
+            <button type="button" class="form-back" id="form-back-btn" style="display:none">
+              ← Back
+            </button>
+            <button type="button" class="btn-form" id="form-next-btn">
+              Continue →
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <!-- Success state -->
+    <div class="modal-success" id="modal-success">
+      <div class="modal-success__icon">✓</div>
+      <h2 class="modal-success__title">You're on the list.</h2>
+      <p class="modal-success__desc">
+        Your spot is saved.<br><br>
+        We're building Stakeback with our earliest users — and we'll let you know when there's something worth trying.
+      </p>
+      <div class="share-row">
+        <a class="share-btn" href="https://twitter.com/intent/tweet?text=I%20just%20joined%20the%20Stakeback%20waitlist%20—%20an%20app%20that%20turns%20your%20everyday%20spending%20into%20investing.%20Spend%20like%20you%20already%20do.%20Own%20what%20you%20buy.&url=https://stakeback.in" target="_blank" rel="noopener">
+          Share on X
+        </a>
+        <a class="share-btn" href="https://wa.me/?text=Just%20joined%20the%20Stakeback%20waitlist%20—%20turns%20everyday%20spending%20into%20investing.%20Check%20it%20out:%20https://stakeback.in" target="_blank" rel="noopener">
+          Share on WhatsApp
+        </a>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ─── SCRIPTS ─────────────────────────────────────────────────── -->
+<script>
+try {
+  // ── UTM & session context ─────────────────────────────────────
+  const params = new URLSearchParams(window.location.search);
+  const session = {
+    utm_source:           params.get('utm_source')   || '',
+    utm_medium:           params.get('utm_medium')   || '',
+    utm_campaign:         params.get('utm_campaign') || '',
+    referrer:             document.referrer || '',
+    device:               /Mobi|Android/i.test(navigator.userAgent) ? 'mobile' : 'desktop',
+    landing_page_version: 'v1',
+  };
+
+  // ── GA4 event wrapper ─────────────────────────────────────────
+  // Every call goes to GA4 (stored in your property) AND console
+  // in dev so you can verify events are firing correctly.
+  function track(eventName, params = {}) {
+    const payload = {
+      // Attach session context to every event so you can filter
+      // by UTM source, device, page version in GA4 Explore reports
+      utm_source:           session.utm_source,
+      utm_medium:           session.utm_medium,
+      utm_campaign:         session.utm_campaign,
+      device_type:          session.device,
+      page_version:         session.landing_page_version,
+      page_referrer:        session.referrer,
+      ...params,
+    };
+
+    // Send to GA4
+    if (typeof gtag === 'function') {
+      gtag('event', eventName, payload);
+    }
+
+    // Mirror to console during development
+    console.log('[stakeback]', eventName, payload);
+  }
+
+  // ── Page view (with UTM) ──────────────────────────────────────
+  // Fired manually so UTM params are attached as event properties,
+  // making them visible in GA4 Explore → Event scoped dimensions.
+  track('page_view', {
+    page_title:    document.title,
+    page_location: window.location.href,
+  });
+
+  // ── Scroll depth tracking ─────────────────────────────────────
+  // Fires once each at 25 / 50 / 75 / 100% page scroll depth.
+  const depthFired = new Set();
+  window.addEventListener('scroll', () => {
+    const scrolled = window.scrollY + window.innerHeight;
+    const total    = document.documentElement.scrollHeight;
+    const pct      = Math.round((scrolled / total) * 100);
+    [25, 50, 75, 100].forEach(depth => {
+      if (pct >= depth && !depthFired.has(depth)) {
+        depthFired.add(depth);
+        track('scroll_depth', { percent_scrolled: depth });
+      }
+    });
+  }, { passive: true });
+
+  // ── Section view tracking ─────────────────────────────────────
+  // Fires section_viewed when a section enters the viewport.
+  // Also records time_on_section (seconds) when the user leaves it.
+  const sectionTimers = {};
+  const sectionObserver = new IntersectionObserver((entries) => {
+    entries.forEach(e => {
+      const id = e.target.id;
+      if (!id) return;
+      if (e.isIntersecting) {
+        sectionTimers[id] = Date.now();
+        track('section_viewed', { section_id: id });
+      } else if (sectionTimers[id]) {
+        const seconds = Math.round((Date.now() - sectionTimers[id]) / 1000);
+        track('section_exited', { section_id: id, time_on_section_sec: seconds });
+        delete sectionTimers[id];
+      }
+    });
+  }, { threshold: 0.4 });
+  document.querySelectorAll('section[id]').forEach(s => sectionObserver.observe(s));
+
+  // ── CTA click tracking ────────────────────────────────────────
+  // Tracks every button/link click with a data-track attribute.
+  // Usage: <button data-track="hero_cta_clicked"> — no JS changes needed.
+  document.addEventListener('click', e => {
+    const el = e.target.closest('[data-track]');
+    if (el) track(el.dataset.track, { label: el.textContent.trim().slice(0, 60) });
+  });
+
+  // ── Time on page (on tab close / navigate away) ───────────────
+  const pageStart = Date.now();
+  window.addEventListener('pagehide', () => {
+    const seconds = Math.round((Date.now() - pageStart) / 1000);
+    // sendBeacon keeps the request alive even as the page unloads
+    if (typeof gtag === 'function') {
+      gtag('event', 'time_on_page', { duration_sec: seconds, ...session });
+    }
+  });
+
+  // ── Navbar scroll ─────────────────────────────────────────────
+  const nav = document.getElementById('nav');
+  window.addEventListener('scroll', () => {
+    nav.classList.toggle('scrolled', window.scrollY > 1);
+  }, { passive: true });
+  // Set on load in case page is refreshed mid-scroll
+  nav.classList.toggle('scrolled', window.scrollY > 1);
+
+  // ── Scroll reveal ─────────────────────────────────────────────
+  const revealObserver = new IntersectionObserver((entries) => {
+    entries.forEach(e => {
+      if (e.isIntersecting) {
+        e.target.classList.add('visible');
+        revealObserver.unobserve(e.target);
+      }
+    });
+  }, { threshold: 0.12 });
+  document.querySelectorAll('.reveal').forEach(el => revealObserver.observe(el));
+
+  // ── Flow card animation ───────────────────────────────────────
+  const flowCard = document.getElementById('flow-card');
+  if (flowCard) {
+  const flowObserver = new IntersectionObserver((entries) => {
+    entries.forEach(e => {
+      if (e.isIntersecting) {
+        e.target.classList.add('animate');
+        flowObserver.unobserve(e.target);
+      }
+    });
+  }, { threshold: 0.3 });
+  flowObserver.observe(flowCard);
+  }
+
+  // ── Portfolio bars animation ──────────────────────────────────
+  const portfolioCard = document.getElementById('portfolio-card');
+  if (portfolioCard) {
+  const portfolioObserver = new IntersectionObserver((entries) => {
+    entries.forEach(e => {
+      if (e.isIntersecting) {
+        document.querySelectorAll('.allocation-row__bar').forEach((bar, i) => {
+          const w = parseFloat(bar.style.getPropertyValue('--w') || '1');
+          setTimeout(() => {
+            bar.style.transform = `scaleX(${w})`;
+          }, i * 100 + 200);
+        });
+        portfolioObserver.unobserve(e.target);
+      }
+    });
+  }, { threshold: 0.3 });
+  portfolioObserver.observe(portfolioCard);
+  }
+
+  // ─── Problem section track ────────────────────────────────────
+  const problemSection = document.getElementById('problem');
+  if (problemSection) {
+  const problemObserver = new IntersectionObserver((entries) => {
+    entries.forEach(e => {
+      if (e.isIntersecting) {
+        track('problem_section_viewed');
+        problemObserver.unobserve(e.target);
+      }
+    });
+  }, { threshold: 0.3 });
+  problemObserver.observe(problemSection);
+  }
+
+  const howSection = document.getElementById('how');
+  if (howSection) {
+  const howObserver = new IntersectionObserver((entries) => {
+    entries.forEach(e => {
+      if (e.isIntersecting) {
+        track('how_it_works_viewed');
+        howObserver.unobserve(e.target);
+      }
+    });
+  }, { threshold: 0.3 });
+  howObserver.observe(howSection);
+  }
+
+  // ── Modal ─────────────────────────────────────────────────────
+  (function () {
+    var step = 1;
+    var total = 5;
+    var started = false;
+
+    var overlay  = document.getElementById('modal');
+    var nextBtn  = document.getElementById('form-next-btn');
+    var backBtn  = document.getElementById('form-back-btn');
+    var closeBtn = document.getElementById('modal-close-btn');
+
+    function openModal() {
+      step = 1; started = false;
+      document.getElementById('email').value = '';
+      overlay.querySelectorAll('input[type="radio"]').forEach(function(r){ r.checked = false; });
+      document.getElementById('free_text').value = '';
+      document.getElementById('modal-form-state').style.display = '';
+      document.getElementById('modal-success').classList.remove('show');
+      document.documentElement.style.scrollSnapType = 'none';
+      document.body.style.overflow = 'hidden';
+      goTo(1);
+      overlay.classList.add('open');
+      setTimeout(function(){ document.getElementById('email').focus(); }, 320);
+    }
+
+    function closeModal() {
+      if (overlay.classList.contains('open') && started && step < total) {
+        track('waitlist_abandoned', { step: step });
+      }
+      overlay.classList.remove('open');
+      document.body.style.overflow = '';
+      document.documentElement.style.scrollSnapType = '';
+    }
+
+    function goTo(n) {
+      step = n;
+      for (var i = 1; i <= total; i++) {
+        var f = document.getElementById('field-' + i);
+        var p = document.getElementById('p' + i);
+        if (f) f.style.display = (i === n) ? '' : 'none';
+        if (p) p.classList.toggle('done', i < n);
+      }
+      backBtn.style.display = n > 1 ? '' : 'none';
+      nextBtn.disabled = false;
+      nextBtn.textContent = n === total ? 'Submit →' : 'Continue →';
+      overlay.querySelectorAll('.form-error').forEach(function(e){ e.style.display = 'none'; });
+      var m = overlay.querySelector('.modal');
+      if (m) m.scrollTop = 0;
+    }
+
+    function validate() {
+      if (step === 1) {
+        var v = document.getElementById('email').value.trim();
+        if (!v || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v)) {
+          document.getElementById('email-error').style.display = 'block';
+          document.getElementById('email').focus();
+          return false;
+        }
+      } else if (step === 2) {
+        if (!overlay.querySelector('input[name="investment_frequency"]:checked')) {
+          document.getElementById('freq-error').style.display = 'block'; return false;
+        }
+      } else if (step === 3) {
+        if (!overlay.querySelector('input[name="product_interest"]:checked')) {
+          document.getElementById('interest-error').style.display = 'block'; return false;
+        }
+      } else if (step === 4) {
+        if (!overlay.querySelector('input[name="monthly_investment_range"]:checked')) {
+          document.getElementById('amount-error').style.display = 'block'; return false;
+        }
+      }
+      return true;
+    }
+
+    nextBtn.addEventListener('click', function() {
+      if (!started) { started = true; track('form_started'); }
+      if (!validate()) return;
+      track('question_' + step + '_completed');
+      if (step === total) { doSubmit(); } else { goTo(step + 1); }
+    });
+
+    backBtn.addEventListener('click', function() { if (step > 1) goTo(step - 1); });
+    closeBtn.addEventListener('click', closeModal);
+    overlay.addEventListener('click', function(e) { if (e.target === overlay) closeModal(); });
+    document.addEventListener('keydown', function(e) { if (e.key === 'Escape') closeModal(); });
+
+    // Wire all open-modal buttons
+    ['nav-cta','hero-cta','validation-cta'].forEach(function(id) {
+      var el = document.getElementById(id);
+      if (el) el.addEventListener('click', openModal);
+    });
+
+    function doSubmit() {
+      nextBtn.disabled = true;
+      nextBtn.textContent = 'Submitting…';
+
+      var email     = document.getElementById('email').value.trim();
+      var frequency = (overlay.querySelector('input[name="investment_frequency"]:checked') || {}).value || '';
+      var interest  = (overlay.querySelector('input[name="product_interest"]:checked') || {}).value || '';
+      var amount    = (overlay.querySelector('input[name="monthly_investment_range"]:checked') || {}).value || '';
+      var concern   = (overlay.querySelector('input[name="biggest_concern"]:checked') || {}).value || '';
+      var freeText  = document.getElementById('free_text').value;
+
+      var ACTION    = 'https://docs.google.com/forms/d/e/1FAIpQLSdiRJz77Iz7HDhPaUt4Hg_vluMgjnZe5qAK-xr_ZXPsXFO1sQ/formResponse';
+      var fields    = [
+        ['entry.801175977',  email],
+        ['entry.714965772',  frequency],
+        ['entry.1414789652', interest],
+        ['entry.906710234',  amount],
+        ['entry.177320953',  concern === 'Something else' ? '__other_option__' : concern],
+        ['entry.1608865840', freeText]
+      ];
+      if (concern === 'Something else') fields.push(['entry.177320953.other_option_response', freeText]);
+
+      var iframe = document.getElementById('gf-iframe');
+      if (!iframe) {
+        iframe = document.createElement('iframe');
+        iframe.id = 'gf-iframe'; iframe.name = 'gf-iframe'; iframe.style.display = 'none';
+        document.body.appendChild(iframe);
+      }
+
+      var form = document.createElement('form');
+      form.method = 'POST'; form.action = ACTION; form.target = 'gf-iframe'; form.style.display = 'none';
+      fields.forEach(function(pair) {
+        var inp = document.createElement('input');
+        inp.type = 'hidden'; inp.name = pair[0]; inp.value = pair[1];
+        form.appendChild(inp);
+      });
+      document.body.appendChild(form);
+      form.submit();
+      document.body.removeChild(form);
+
+      try {
+        var stored = JSON.parse(localStorage.getItem('sb_waitlist') || '[]');
+        stored.push({ email: email, frequency: frequency, interest: interest, amount: amount, concern: concern, freeText: freeText, ts: new Date().toISOString() });
+        localStorage.setItem('sb_waitlist', JSON.stringify(stored));
+      } catch(e) {}
+
+      track('waitlist_submitted', { email: email });
+
+      setTimeout(function() {
+        document.getElementById('modal-form-state').style.display = 'none';
+        document.getElementById('modal-success').classList.add('show');
+      }, 400);
+    }
+
+  }());
+
+  // ── Dummy data auto-fill (dev helper) ─────────────────────────
+  window._fillDummy = function() {
+    document.getElementById('email').value = 'demo@example.com';
+    document.querySelector('input[name="investment_frequency"][value="1–3 times a month"]').checked = true;
+    document.querySelector('input[name="product_interest"][value="I\'d definitely use it"]').checked = true;
+    document.querySelector('input[name="monthly_investment_range"][value="₹500 – ₹1,000"]').checked = true;
+    document.querySelector('input[name="biggest_concern"][value="Fees would be a concern"]').checked = true;
+    document.getElementById('free_text').value = 'I would use this if the investment process was automatic.';
+  };
+} catch(err) {
+  console.error('[stakeback] script error:', err);
+}
+</script>
+</body>
+</html>
